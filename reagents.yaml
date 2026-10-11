@@ -1,0 +1,54 @@
+# Reagents to price.
+#
+# target_grams: how much PURE material you want of each reagent. The tool finds the
+# cheapest way to get at least this much (it may pick 1 x 5 g or 2 x 2 g, etc.).
+#
+# Per reagent:
+#   name       Display name, also the first search term.
+#   cas        CAS number(s). A CAS number in a product title counts as a match.
+#   synonyms   Other names/trade names to search for and to accept as a match.
+#   exclude    Words/phrases that disqualify a product (different isomers, related materials).
+#   density    g/mL, used to convert "5 ml" packs into grams. Approximate is fine.
+#   allow_dilutions  true to let pre-diluted products (e.g. "10% in DPG") win. Default false.
+#   target_grams     override the global target for this reagent.
+
+target_grams: 4
+
+reagents:
+  - name: Ethylene brassylate
+    cas: ["105-95-3"]
+    synonyms: ["ethylene brassylate", "musk t", "astrotone", "emeressence 1150"]
+    exclude: []
+    density: 1.02
+
+  - name: Beta-damascone
+    # Sources disagree on which CAS is "beta-damascone"; accept all three.
+    cas: ["23726-91-2", "35044-68-9", "23726-92-3"]
+    synonyms: ["beta damascone", "damascone beta"]
+    exclude: ["damascenone", "alpha", "delta", "gamma"]
+    density: 0.934
+
+  - name: Beta-ionone
+    cas: ["14901-07-6", "79-77-6"]
+    synonyms: ["beta ionone", "ionone beta"]
+    exclude: ["methyl", "dihydro", "alpha", "gamma", "ionol", "epoxy", "iso e"]
+    density: 0.945
+
+  - name: Allyl amyl glycolate
+    cas: ["67634-00-8"]
+    synonyms: ["allyl amyl glycolate", "aag", "allyl isoamyloxyacetate", "allyl 3 methylbutoxy acetate"]
+    exclude: []
+    density: 0.96
+
+  - name: Nutmeg essential oil
+    cas: ["8008-45-5", "84082-68-8"]
+    synonyms: ["nutmeg essential oil", "nutmeg oil", "nutmeg eo", "nutmeg"]
+    # CO2 extracts, absolutes and oleoresins are different materials.
+    exclude: ["co2", "absolute", "oleoresin", "butter", "mace", "blend", "fragrance oil", "candle", "soap"]
+    density: 0.88
+
+  - name: Delta-decalactone
+    cas: ["705-86-2"]
+    synonyms: ["delta decalactone", "decalactone delta"]
+    exclude: ["gamma", "dodecalactone", "undecalactone", "nonalactone", "octalactone", "massoia"]
+    density: 0.97

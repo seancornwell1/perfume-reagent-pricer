@@ -1,0 +1,157 @@
+# Marketplaces to search.
+#
+# platform:
+#   auto         Try Shopify, then WooCommerce. Use this when unsure.
+#   shopify      Reads the store's public product catalog (products.json).
+#   woocommerce  Uses the WooCommerce Store API (/wp-json/wc/store/...).
+#   generic      Fetches search_url, follows product links, reads prices from the page.
+#                Best-effort; check its results by hand.
+#   manual       Not searched automatically (site blocks bots). The report gives you
+#                a search link to check by hand.
+#
+# coa.level (best to worst), what we know about Certificates of Analysis:
+#   published    Lot-specific CoA downloadable from the vendor's site.
+#   with_order   Vendor says a CoA ships with every order/batch.
+#   on_request   Vendor confirmed they'll send a lot CoA if asked.
+#   mentioned    The site mentions CoAs, but it's unclear for which products.
+#   unknown      Not confirmed yet. Email them and update this (see README).
+#   none         Vendor said they don't provide CoAs.
+# If a product page mentions "certificate of analysis"/"COA" at run time, an
+# "unknown" vendor is bumped to "mentioned" for that product.
+#
+# shipping_usd: your typical shipping cost for a small order, used to pick the
+# cheapest combination of vendors. Leave it out to use the defaults in settings.
+
+settings:
+  min_coa_level: on_request          # recommendations only use vendors at or above this
+  default_shipping_usd_domestic: 10
+  default_shipping_usd_international: 25
+  request_delay_seconds: 1.0         # pause between requests to the same site
+  # Used only if live exchange rates can't be fetched. USD per 1 unit of currency.
+  fallback_usd_per:
+    USD: 1.0
+    GBP: 1.27
+    EUR: 1.09
+    THB: 0.029
+
+vendors:
+  # ---- CoA availability documented ----
+  - name: Sigma-Aldrich
+    url: https://www.sigmaaldrich.com
+    platform: manual
+    search_url: "https://www.sigmaaldrich.com/US/en/search/{q}?focus=products&page=1&perpage=30&sort=relevance&term={q}&type=product"
+    country: US
+    currency: USD
+    coa:
+      level: published
+      note: "Lot CoA lookup by product + lot number. Fragrance-grade (FG) lines carry these materials. Packs are often 25 g+ and site blocks scripts."
+      source: https://www.sigmaaldrich.com/documents-search?tab=coa
+
+  - name: Molekula
+    url: https://molekula.com
+    platform: manual
+    search_url: "https://molekula.com/search?q={q}"
+    country: GB
+    currency: GBP
+    coa:
+      level: with_order
+      note: "States every batch ships with a CoA; batch lookup on product pages. Packs often 100 g+ or price on request. Research/industrial use only."
+      source: https://molekula.com/support/coa-lookup
+
+  - name: PerfumersWorld
+    url: https://www.perfumersworld.com
+    platform: generic
+    search_url: "https://www.perfumersworld.com/product-search.php?query={q}"
+    product_link_pattern: "view\\.php\\?pro_id="
+    country: TH
+    currency: USD
+    coa:
+      level: published
+      note: "Publishes CoA PDFs per product code, but they are organoleptic pass/fail (colour/odour/solubility), not GC assays. Sells by the gram."
+      source: https://www.perfumersworld.com/ifra/COA/UNI06027.pdf
+
+  # ---- CoA mentioned, not confirmed ----
+  - name: Bulkaroma (Imported Aromatic Chemicals)
+    url: https://bulkaroma.com
+    platform: shopify
+    country: US
+    currency: USD
+    coa:
+      level: mentioned
+      note: "Product pages have a COA section; contents unverified. Smallest packs usually 25 g."
+      source: https://bulkaroma.com/products/decalactone-delta-fg-firmenich
+
+  # ---- Small packs, CoA unknown: email them to ask ----
+  - name: Perfumer's Apprentice
+    url: https://shop.perfumersapprentice.com
+    platform: generic
+    search_url: "https://shop.perfumersapprentice.com/search.aspx?searchterm={q}"
+    product_link_pattern: "/p-\\d+-"
+    country: US
+    currency: USD
+    coa: {level: unknown, note: "Sells 4 ml / small sizes."}
+
+  - name: Perfumer Supply House
+    url: https://perfumersupplyhouse.com
+    platform: woocommerce
+    country: US
+    currency: USD
+    coa: {level: unknown, note: "Sells 5 g sizes."}
+
+  - name: Olfactorian
+    url: https://olfactorian.com
+    platform: auto
+    country: US
+    currency: USD
+    coa: {level: unknown}
+
+  - name: Creating Perfume
+    url: https://www.creatingperfume.com
+    platform: auto
+    country: US
+    currency: USD
+    coa: {level: unknown}
+
+  - name: Fraterworks
+    url: https://fraterworks.com
+    platform: shopify
+    country: US
+    currency: USD
+    coa: {level: unknown, note: "Product pages recommend lot-level chromatographic checks; ask for GC/CoA."}
+
+  - name: Tilley Distribution
+    url: https://www.tilleydistributionproducts.com
+    platform: auto
+    country: US
+    currency: USD
+    coa: {level: unknown, note: "Distributor; lists SDS/TDS. Ask about CoA and minimum order."}
+
+  - name: Pell Wall
+    url: https://pellwall.com
+    platform: shopify
+    country: GB
+    currency: GBP
+    coa: {level: unknown, note: "UK; 5 g / 10 g sizes filled by weight."}
+
+  # ---- Essential oils (for nutmeg) ----
+  - name: Eden Botanicals
+    url: https://www.edenbotanicals.com
+    platform: auto
+    country: US
+    currency: USD
+    coa: {level: unknown, note: "Ask for the GC/MS report for the current lot."}
+
+  - name: Edens Garden
+    url: https://www.edensgarden.com
+    platform: auto
+    country: US
+    currency: USD
+    coa: {level: unknown, note: "A third-party GC/MS report exists for a 2020 nutmeg batch; ask for the current lot's."}
+
+  - name: Chem-Impex
+    url: https://www.chemimpex.com
+    platform: manual
+    search_url: "https://www.chemimpex.com/search?search={q}"
+    country: US
+    currency: USD
+    coa: {level: unknown, note: "Research-chemical supplier; CoA by lot is typical for this kind of supplier but not confirmed."}
